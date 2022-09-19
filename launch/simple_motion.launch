@@ -11,5 +11,5 @@
   <arg name="use_sim_time" default="true"/>
   <param name="use_sim_time" value="$(arg use_sim_time)"/>
 
-  <node pkg="simple_motion" type="simple_motion" name="simple_motion" output="screen"/>
+  <node pkg="regular_polygon_motion" type="regular_polygon_motion" name="regular_polygon_motion" output="screen"/>
 </launch>
