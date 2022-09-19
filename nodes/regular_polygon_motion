@@ -118,6 +118,10 @@ def main():
     # If interrupted, send a stop command.
     rospy.on_shutdown(simple_motion.stop)
 
+    num_sides = rospy.get_param('num_sides’)
+    is_clockwise = rospy.get_param('is_clockwise’)
+    side_length = rospy.get_param('side_length’) 
+    
     # Robot moves 1 m forward, rotate of 180 degrees, and moves 1 m forward.
     try:
         simple_motion.move_forward(1)
