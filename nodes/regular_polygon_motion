@@ -128,9 +128,9 @@ def main():
     rospy.on_shutdown(regular_polygon_motion.stop)
 
     # Get parameters for the shape and size of the regular polygon and travel direction
-    num_sides = rospy.get_param('num_sides')
-    is_clockwise = rospy.get_param('is_clockwise')
-    side_length = rospy.get_param('side_length')
+    num_sides = rospy.get_param('/regular_polygon_motion/num_sides')
+    is_clockwise = rospy.get_param('/regular_polygon_motion/is_clockwise')
+    side_length = rospy.get_param('/regular_polygon_motion/side_length')
     interior_angle = ((num_sides - 2) * math.pi) / num_sides
     turning_angle = (math.pi - interior_angle) * (1, -1)[is_clockwise]
     
