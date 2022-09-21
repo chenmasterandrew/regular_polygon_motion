@@ -137,7 +137,7 @@ def main():
     try:
         for s in range(0,num_sides):
             regular_polygon_motion.move_forward(side_length)
-            regular_polygon_motion.rotate_in_place(turning_angle)
+            regular_polygon_motion.rotate_in_place(math.pi / 3)
     except rospy.ROSInterruptException:
         rospy.logerr("ROS node interrupted.")
 
