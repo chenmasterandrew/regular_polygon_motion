@@ -109,7 +109,7 @@ class RegularPolygonMotion():
 
     def _odom_callback(self, msg):
         """Processing of odom message."""
-        self._point = msg.pose.pose.point
+        self._point = msg.pose.pose.position
 
 def main():
     """Main function."""
