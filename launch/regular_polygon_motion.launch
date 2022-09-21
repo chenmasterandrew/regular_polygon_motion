@@ -16,7 +16,7 @@
   <arg name="side_length" default="1"/>
   <param name="/regular_polygon_motion/num_sides" type="int" value="$(arg num_sides)" />
   <param name="/regular_polygon_motion/is_clockwise" type="bool" value="$(arg is_clockwise)" />
-  <param name="/regular_polygon_motion/side_length" type="float" value="$(arg side_length)" />
+  <param name="/regular_polygon_motion/side_length" type="double" value="$(arg side_length)" />
   
   <node pkg="regular_polygon_motion" type="regular_polygon_motion" name="regular_polygon_motion" output="screen"/>
 </launch>
