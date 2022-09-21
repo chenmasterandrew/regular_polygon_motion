@@ -9,7 +9,6 @@ import rospy # module for ROS APIs
 from geometry_msgs.msg import Twist # message type for cmd_vel
 from sensor_msgs.msg import LaserScan # message type for scan
 from nav_msgs.msg import Odometry # message type for odom
-from geometry_msgs.msg import Point # message type for a point
 from std_msgs.msg import Float32 # message type for a float
 
 # Constants.
@@ -110,7 +109,7 @@ class RegularPolygonMotion():
 
     def _odom_callback(self, msg):
         """Processing of odom message."""
-        self._point = msg.pose.point
+        self._point = msg.pose.pose.point
 
 def main():
     """Main function."""
