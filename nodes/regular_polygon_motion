@@ -116,7 +116,7 @@ def main():
     """Main function."""
 
     # 1st. initialization of node.
-    rospy.init_node("simple_motion")
+    rospy.init_node("regular_polygon_motion")
 
     # Sleep for a few seconds to wait for the registration.
     rospy.sleep(2)
@@ -139,7 +139,6 @@ def main():
         for s in range(0,num_sides):
             regular_polygon_motion.move_forward(side_length)
             regular_polygon_motion.rotate_in_place(turning_angle)
-
     except rospy.ROSInterruptException:
         rospy.logerr("ROS node interrupted.")
 
