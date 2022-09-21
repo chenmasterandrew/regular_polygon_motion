@@ -131,7 +131,7 @@ def main():
     is_clockwise = rospy.get_param('/regular_polygon_motion/is_clockwise')
     side_length = rospy.get_param('/regular_polygon_motion/side_length')
     interior_angle = ((num_sides - 2) * math.pi) / num_sides
-    turning_angle = (2 * math.pi - interior_angle) * (0, 1)[is_clockwise]
+    turning_angle = (math.pi - interior_angle) * (1, -1)[is_clockwise]
     
     # Robot moves 1 m forward, rotate of 180 degrees, and moves 1 m forward.
     try:
