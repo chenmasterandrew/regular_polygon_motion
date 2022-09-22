@@ -109,7 +109,8 @@ class RegularPolygonMotion():
 
     def _odom_callback(self, msg):
         """Processing of odom message."""
-        self._point = msg.pose.pose.position
+        self._x_pos = msg.pose.pose.position.x
+        self._y_pos = msg.pose.pose.position.y
 
 def main():
     """Main function."""
@@ -136,11 +137,26 @@ def main():
     else:
         turning_angle = math.pi - turning_angle
     
-    # Robot moves 1 m forward, rotate of 180 degrees, and moves 1 m forward.
+    # Robot moves forward side_length units and rotates until it traverses the regular polygon
+    expected_yaw = 0
+    expected_x = 0
+    expected_y = 0
     try:
         for s in range(0,num_sides):
             regular_polygon_motion.move_forward(side_length)
             regular_polygon_motion.rotate_in_place(turning_angle)
+            
+            # calculate expected robot position and log error
+            expected_x += math.cos(expected_yaw)
+            expected_y += math.sin(expected_yaw)
+            expected_yaw += turning_angle
+            rospy.loginfo("actual x: {actual_x}, y: {actual_y}; expected x: {expected_x}, y: {expected_y}; error: {error}".format(
+                actual_x=self._x_pos,
+                actual_y=self._y_pos,
+                expected_x=expected_x,
+                expected_y=expected_y,
+                error=error
+            ))
     except rospy.ROSInterruptException:
         rospy.logerr("ROS node interrupted.")
 
