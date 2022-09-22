@@ -138,9 +138,7 @@ def main():
         turning_angle = math.pi - turning_angle
     
     # Robot moves forward side_length units and rotates until it traverses the regular polygon
-    expected_yaw = 0
-    expected_x = 0
-    expected_y = 0
+    expected_yaw, expected_x, expected_y = 0, 0, 0
     try:
         for s in range(0,num_sides):
             regular_polygon_motion.move_forward(side_length)
@@ -150,9 +148,10 @@ def main():
             expected_x += math.cos(expected_yaw)
             expected_y += math.sin(expected_yaw)
             expected_yaw += turning_angle
+            error = ((regular_polygon_motion._x_pos - expected_x)**2 + (regular_polygon_motion._y_pos - expected_y)**2)**0.5
             rospy.loginfo("actual x: {actual_x}, y: {actual_y}; expected x: {expected_x}, y: {expected_y}; error: {error}".format(
-                actual_x=self._x_pos,
-                actual_y=self._y_pos,
+                actual_x=regular_polygon_motion._x_pos,
+                actual_y=regular_polygon_motion._y_pos,
                 expected_x=expected_x,
                 expected_y=expected_y,
                 error=error
