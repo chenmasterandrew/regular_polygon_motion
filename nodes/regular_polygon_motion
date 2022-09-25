@@ -100,30 +100,32 @@ class RegularPolygonMotion():
         self._cmd_pub.publish(twist_msg)
 
     def move_polygon(self):
-        """Moving the robot in polygon shape."""
-        # Get parameters for the shape and size of the regular polygon and travel direction
-        rate = rospy.Rate(FREQUENCY)
+        """Moving the robot in a polygon shape specified by parameters."""
         num_sides = rospy.get_param('/regular_polygon_motion/num_sides')
         is_clockwise = rospy.get_param('/regular_polygon_motion/is_clockwise')
         side_length = rospy.get_param('/regular_polygon_motion/side_length')
+
+        # get the turning angle at each vertex based on polygon interior angle and movement direction
         turning_angle = ((num_sides - 2) * math.pi) / num_sides
         if is_clockwise:
             turning_angle = math.pi + turning_angle
         else:
             turning_angle = math.pi - turning_angle
 
-        # Robot moves forward side_length units and rotates until it traverses the regular polygon
+        # Robot moves forward side_length units and rotates turning_angle radians until it traverses the regular polygon
         expected_yaw, expected_x, expected_y = 0, 0, 0
         self._err_pub.publish(0.0)
         for _ in range(num_sides):
             self.move_forward(side_length)
             self.rotate_in_place(turning_angle)
                 
-             # calculate expected robot position and log error
+             # calculate expected robot position, yaw, and error
             expected_x += math.cos(expected_yaw) * side_length
             expected_y += math.sin(expected_yaw) * side_length
             expected_yaw += turning_angle
             err = abs(((self._x_pos - expected_x)**2 + (self._y_pos - expected_y)**2)**0.5)
+
+            # log and publish error 
             rospy.loginfo(err)
             self._err_pub.publish(err)
             
