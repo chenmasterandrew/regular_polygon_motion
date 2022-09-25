@@ -8,20 +8,24 @@ The node publishes at each of the vertices of the polygon the error using std_ms
 
 ## Requirements
 - ROS -- tested on Melodic, but other versions may work.
-- colcon -- used for building the application. 
+- catkin -- used for building the application. 
 
 ## Build
-Once cloned in a ROS workspace, e.g., `ros_workspace/src/`, run the following commands to build it:
+Once cloned in a ROS workspace, e.g., `catkin_ws/src/`, run the following commands to build it:
 
-	cd ros_workspace
-	colcon build
+	cd catkin_ws
+	catkin_make
 	
 ## Run
 Run first the robot nodes or simulator. 
-Then, source and use the launch file:
+Then, source and use the launch file with parameters:
 
-	source ros_workspace/install/setup.sh
-	roslaunch regular_polygon_motion regular_polygon_motion.launch
+	source catkin_ws/devel/setup.sh
+	roslaunch regular_polygon_motion regular_polygon_motion.launch num_sides:=<number of sides> is_clockwise:=<true|false> side_length:=<side length>
+
+To view the error at each vertex:
+
+  rostopic echo /rpm_err
 
 ## Attribution & Licensing
 

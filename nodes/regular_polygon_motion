@@ -20,6 +20,7 @@ MIN_THRESHOLD_DISTANCE = 0.5 # m, threshold distance.
 DEFAULT_CMD_VEL_TOPIC = 'cmd_vel'
 DEFAULT_SCAN_TOPIC = 'scan'
 DEFAULT_ODOMETRY_TOPIC = 'odom'
+DEFAULT_ERROR_TOPIC = '/rpm_err'
 
 class RegularPolygonMotion():
     def __init__(self, linear_velocity=LINEAR_VELOCITY, angular_velocity=ANGULAR_VELOCITY):
@@ -27,6 +28,7 @@ class RegularPolygonMotion():
 
         # Setting up publishers/subscribers.
         self._cmd_pub = rospy.Publisher(DEFAULT_CMD_VEL_TOPIC, Twist, queue_size=1)
+        self._err_pub = rospy.Publisher(DEFAULT_ERROR_TOPIC, Float32, queue_size=1)
 
         # Setting up subscribers.
         self._laser_sub = rospy.Subscriber(DEFAULT_SCAN_TOPIC, LaserScan, self._laser_callback, queue_size=1)
@@ -97,6 +99,34 @@ class RegularPolygonMotion():
         twist_msg = Twist()
         self._cmd_pub.publish(twist_msg)
 
+    def move_polygon(self):
+        """Moving the robot in polygon shape."""
+        # Get parameters for the shape and size of the regular polygon and travel direction
+        rate = rospy.Rate(FREQUENCY)
+        num_sides = rospy.get_param('/regular_polygon_motion/num_sides')
+        is_clockwise = rospy.get_param('/regular_polygon_motion/is_clockwise')
+        side_length = rospy.get_param('/regular_polygon_motion/side_length')
+        turning_angle = ((num_sides - 2) * math.pi) / num_sides
+        if is_clockwise:
+            turning_angle = math.pi + turning_angle
+        else:
+            turning_angle = math.pi - turning_angle
+
+        # Robot moves forward side_length units and rotates until it traverses the regular polygon
+        expected_yaw, expected_x, expected_y = 0, 0, 0
+        self._err_pub.publish(0.0)
+        for _ in range(num_sides):
+            self.move_forward(side_length)
+            self.rotate_in_place(turning_angle)
+                
+             # calculate expected robot position and log error
+            expected_x += math.cos(expected_yaw) * side_length
+            expected_y += math.sin(expected_yaw) * side_length
+            expected_yaw += turning_angle
+            err = abs(((self._x_pos - expected_x)**2 + (self._y_pos - expected_y)**2)**0.5)
+            rospy.loginfo(err)
+            self._err_pub.publish(err)
+            
     def _laser_callback(self, msg):
         """Processing of laser message."""
         # Access to the index of the measurement in front of the robot.
@@ -126,36 +156,10 @@ def main():
 
     # If interrupted, send a stop command.
     rospy.on_shutdown(regular_polygon_motion.stop)
-
-    # Get parameters for the shape and size of the regular polygon and travel direction
-    num_sides = rospy.get_param('/regular_polygon_motion/num_sides')
-    is_clockwise = rospy.get_param('/regular_polygon_motion/is_clockwise')
-    side_length = rospy.get_param('/regular_polygon_motion/side_length')
-    turning_angle = ((num_sides - 2) * math.pi) / num_sides
-    if is_clockwise:
-        turning_angle = math.pi + turning_angle
-    else:
-        turning_angle = math.pi - turning_angle
     
-    # Robot moves forward side_length units and rotates until it traverses the regular polygon
-    expected_yaw, expected_x, expected_y = 0, 0, 0
     try:
-        for s in range(0,num_sides):
-            regular_polygon_motion.move_forward(side_length)
-            regular_polygon_motion.rotate_in_place(turning_angle)
-            
-            # calculate expected robot position and log error
-            expected_x += math.cos(expected_yaw)
-            expected_y += math.sin(expected_yaw)
-            expected_yaw += turning_angle
-            error = ((regular_polygon_motion._x_pos - expected_x)**2 + (regular_polygon_motion._y_pos - expected_y)**2)**0.5
-            rospy.loginfo("actual x: {actual_x}, y: {actual_y}; expected x: {expected_x}, y: {expected_y}; error: {error}".format(
-                actual_x=regular_polygon_motion._x_pos,
-                actual_y=regular_polygon_motion._y_pos,
-                expected_x=expected_x,
-                expected_y=expected_y,
-                error=error
-            ))
+        regular_polygon_motion.move_polygon()
+
     except rospy.ROSInterruptException:
         rospy.logerr("ROS node interrupted.")
 
